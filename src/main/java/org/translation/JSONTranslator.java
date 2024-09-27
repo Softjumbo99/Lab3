@@ -8,14 +8,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * An implementation of the Translator interface which reads in the translation
  * data from a JSON file. The data is read in once each time an instance of this class is constructed.
  */
 public class JSONTranslator implements Translator {
-
-    // TODO Task: pick appropriate instance variables for this class
+    private static final int LANG_START = 3;
+    private static final String CODE_ALPHA = "alpha3";
+    private final JSONArray jsonArray;
 
     /**
      * Constructs a JSONTranslator using data from the sample.json resources file.
@@ -32,14 +34,8 @@ public class JSONTranslator implements Translator {
     public JSONTranslator(String filename) {
         // read the file to get the data to populate things...
         try {
-
             String jsonString = Files.readString(Paths.get(getClass().getClassLoader().getResource(filename).toURI()));
-
-            JSONArray jsonArray = new JSONArray(jsonString);
-
-            // TODO Task: use the data in the jsonArray to populate your instance variables
-            //            Note: this will likely be one of the most substantial pieces of code you write in this lab.
-
+            this.jsonArray = new JSONArray(jsonString);
         }
         catch (IOException | URISyntaxException ex) {
             throw new RuntimeException(ex);
@@ -48,21 +44,34 @@ public class JSONTranslator implements Translator {
 
     @Override
     public List<String> getCountryLanguages(String country) {
-        // TODO Task: return an appropriate list of language codes,
-        //            but make sure there is no aliasing to a mutable object
-        return new ArrayList<>();
+        List<String> languages = new ArrayList<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject language = jsonArray.getJSONObject(i);
+            if (language.getString(CODE_ALPHA).equals(country)) {
+                languages.addAll(language.keySet());
+                languages.subList(0, LANG_START).clear();
+            }
+        }
+        return languages;
     }
 
     @Override
     public List<String> getCountries() {
-        // TODO Task: return an appropriate list of country codes,
-        //            but make sure there is no aliasing to a mutable object
-        return new ArrayList<>();
+        List<String> countries = new ArrayList<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            countries.add(jsonObject.getString(CODE_ALPHA));
+        }
+        return countries;
     }
 
     @Override
     public String translate(String country, String language) {
-        // TODO Task: complete this method using your instance variables as needed
+        for (int i = 0; i < jsonArray.length(); i++) {
+            if (jsonArray.getJSONObject(i).getString(CODE_ALPHA).equals(country)) {
+                return jsonArray.getJSONObject(i).getString(language);
+            }
+        }
         return null;
     }
 }
