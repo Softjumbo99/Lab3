@@ -45,7 +45,7 @@ public class Main {
             CountryCodeConverter converter = new CountryCodeConverter();
             String coun = converter.fromCountry(country);
             String language = promptForLanguage(translator, coun);
-            if (language.equals(qi)) {
+            if (qi.equals(language)) {
                 break;
             }
 
@@ -65,12 +65,14 @@ public class Main {
     // Note: CheckStyle is configured so that we don't need javadoc for private methods
     private static String promptForCountry(Translator translator) {
         List<String> countries = translator.getCountries();
+
         for (int i = 0; i < countries.size(); i++) {
-            for (String country : countries) {
-                countries.set(i, translator.translate(country, "en"));
-            }
+            CountryCodeConverter converter = new CountryCodeConverter();
+            String country = converter.fromCountryCode(countries.get(i));
+            countries.set(i, country);
         }
         Collections.sort(countries);
+
         for (String country : countries) {
             System.out.println(country);
         }
@@ -84,17 +86,19 @@ public class Main {
 
     // Note: CheckStyle is configured so that we don't need javadoc for private methods
     private static String promptForLanguage(Translator translator, String country) {
-
         List<String> languages = translator.getCountryLanguages(country);
         for (int i = 0; i < languages.size(); i++) {
-            for (String language : languages) {
-                languages.set(i, translator.translate(country, language));
-            }
+            LanguageCodeConverter converter = new LanguageCodeConverter();
+            String language = converter.fromLanguageCode(languages.get(i));
+            languages.set(i, language);
         }
+
         Collections.sort(languages);
+
         for (String language : languages) {
             System.out.println(language);
         }
+
         System.out.println("select a language from above:");
 
         Scanner s = new Scanner(System.in);
